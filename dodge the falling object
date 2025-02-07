@@ -1,0 +1,69 @@
+import pygame
+import random
+
+# Initialize pygame
+pygame.init()
+
+# Game Constants
+WIDTH, HEIGHT = 500, 600
+PLAYER_WIDTH, PLAYER_HEIGHT = 50, 50
+ENEMY_WIDTH, ENEMY_HEIGHT = 50, 50
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+SPEED = 5
+
+# Set up the screen
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Dodge the Falling Blocks")
+
+# Player setup
+player = pygame.Rect(WIDTH//2, HEIGHT - PLAYER_HEIGHT - 10, PLAYER_WIDTH, PLAYER_HEIGHT)
+
+# Enemy setup
+enemies = []
+for _ in range(5):
+    x = random.randint(0, WIDTH - ENEMY_WIDTH)
+    y = random.randint(-150, -50)
+    enemies.append(pygame.Rect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT))
+
+# Game loop
+running = True
+clock = pygame.time.Clock()
+while running:
+    screen.fill(WHITE)
+    pygame.time.delay(30)
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    
+    # Player movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player.x > 0:
+        player.x -= SPEED
+    if keys[pygame.K_RIGHT] and player.x < WIDTH - PLAYER_WIDTH:
+        player.x += SPEED
+    
+    # Move enemies
+    for enemy in enemies:
+        enemy.y += SPEED
+        if enemy.y > HEIGHT:
+            enemy.y = random.randint(-150, -50)
+            enemy.x = random.randint(0, WIDTH - ENEMY_WIDTH)
+    
+    # Check for collisions
+    for enemy in enemies:
+        if player.colliderect(enemy):
+            print("Game Over!")
+            running = False
+    
+    # Draw elements
+    pygame.draw.rect(screen, BLUE, player)
+    for enemy in enemies:
+        pygame.draw.rect(screen, RED, enemy)
+    
+    pygame.display.update()
+    clock.tick(30)
+
+pygame.quit()
